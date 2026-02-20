@@ -1,17 +1,19 @@
 import { motion } from "framer-motion";
 import { getCurrentRank } from "@/lib/ranks";
-import { DAILY_TASKS } from "@/lib/programs";
 
 interface ProfileViewProps {
   totalExp: number;
   streak: number;
   completedToday: string[];
+  customTasksCount?: number;
+  totalTasksCount?: number;
 }
 
-const ProfileView = ({ totalExp, streak, completedToday }: ProfileViewProps) => {
+const ProfileView = ({ totalExp, streak, completedToday, customTasksCount = 0, totalTasksCount = 0 }: ProfileViewProps) => {
   const rank = getCurrentRank(totalExp);
   const todayCompleted = completedToday.length;
-  const totalPossibleExp = DAILY_TASKS.reduce((sum, t) => sum + t.expReward, 0);
+  const totalPossibleExp = totalTasksCount > 0 ? totalTasksCount * 15 : 0;
+
 
   return (
     <div className="space-y-4">
@@ -33,10 +35,11 @@ const ProfileView = ({ totalExp, streak, completedToday }: ProfileViewProps) => 
       <div className="grid grid-cols-2 gap-3">
         {[
           { label: "Streak Terbaik", value: `${streak} hari`, emoji: "🔥" },
-          { label: "Task Hari Ini", value: `${todayCompleted}/${DAILY_TASKS.length}`, emoji: "✅" },
-          { label: "Max EXP/Hari", value: `${totalPossibleExp} XP`, emoji: "⚡" },
+          { label: "Task Hari Ini", value: `${todayCompleted}/${totalTasksCount}`, emoji: "✅" },
+          { label: "Jadwal Custom", value: `${customTasksCount}`, emoji: "📋" },
           { label: "Total Rank", value: rank.name, emoji: rank.icon },
         ].map((item, i) => (
+
           <motion.div
             key={item.label}
             initial={{ opacity: 0, y: 10 }}

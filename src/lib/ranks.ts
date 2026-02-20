@@ -4,15 +4,16 @@ export interface Rank {
   maxExp: number;
   color: string;
   icon: string;
+  image: string;
 }
 
 export const RANKS: Rank[] = [
-  { name: "Bronze", minExp: 0, maxExp: 100, color: "var(--rank-bronze)", icon: "🥉" },
-  { name: "Silver", minExp: 100, maxExp: 300, color: "var(--rank-silver)", icon: "🥈" },
-  { name: "Gold", minExp: 300, maxExp: 600, color: "var(--rank-gold)", icon: "🥇" },
-  { name: "Platinum", minExp: 600, maxExp: 1000, color: "var(--rank-platinum)", icon: "💎" },
-  { name: "Diamond", minExp: 1000, maxExp: 1500, color: "var(--rank-diamond)", icon: "👑" },
-  { name: "Master", minExp: 1500, maxExp: 9999, color: "var(--rank-master)", icon: "🔥" },
+  { name: "Bronze", minExp: 0, maxExp: 100, color: "var(--rank-bronze)", icon: "🥉", image: "/bronze.png" },
+  { name: "Silver", minExp: 100, maxExp: 300, color: "var(--rank-silver)", icon: "🥈", image: "/silver.png" },
+  { name: "Gold", minExp: 300, maxExp: 600, color: "var(--rank-gold)", icon: "🥇", image: "/gold.png" },
+  { name: "Platinum", minExp: 600, maxExp: 1000, color: "var(--rank-platinum)", icon: "💎", image: "/platinum.png" },
+  { name: "Diamond", minExp: 1000, maxExp: 1500, color: "var(--rank-diamond)", icon: "👑", image: "/diamond.png" },
+  { name: "Master", minExp: 1500, maxExp: 9999, color: "var(--rank-master)", icon: "🔥", image: "/master.png" },
 ];
 
 export function getCurrentRank(exp: number): Rank {

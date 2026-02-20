@@ -18,7 +18,9 @@ const RankBadge = ({ totalExp }: RankBadgeProps) => {
       className="card-soft rounded-2xl p-5"
     >
       <div className="flex items-center gap-4 mb-4">
-        <div className="text-4xl">{rank.icon}</div>
+        <div className="w-24 h-24 flex items-center justify-center">
+          <img src={rank.image} alt={rank.name} className="w-full h-full object-contain filter drop-shadow-lg" />
+        </div>
         <div className="flex-1">
           <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
             Rank Saat Ini

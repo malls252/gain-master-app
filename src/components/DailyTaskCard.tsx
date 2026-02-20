@@ -1,15 +1,18 @@
 import { motion } from "framer-motion";
-import { Check } from "lucide-react";
+import { Check, Trash2 } from "lucide-react";
 import type { Task } from "@/lib/programs";
 
 interface DailyTaskCardProps {
   task: Task;
   completed: boolean;
   onToggle: () => void;
+  onDelete?: () => void;
   index: number;
 }
 
-const DailyTaskCard = ({ task, completed, onToggle, index }: DailyTaskCardProps) => {
+
+const DailyTaskCard = ({ task, completed, onToggle, onDelete, index }: DailyTaskCardProps) => {
+
   return (
     <motion.button
       initial={{ opacity: 0, y: 10 }}
@@ -58,8 +61,22 @@ const DailyTaskCard = ({ task, completed, onToggle, index }: DailyTaskCardProps)
       >
         +{task.expReward} XP
       </div>
+
+      {/* Delete button for custom tasks */}
+      {task.isCustom && onDelete && (
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onDelete();
+          }}
+          className="flex-shrink-0 p-1.5 text-destructive/60 hover:text-destructive hover:bg-destructive/10 rounded-lg transition-colors"
+        >
+          <Trash2 className="w-4 h-4" />
+        </button>
+      )}
     </motion.button>
   );
 };
+
 
 export default DailyTaskCard;

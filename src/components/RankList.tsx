@@ -21,11 +21,12 @@ const RankList = ({ totalExp }: RankListProps) => {
             initial={{ opacity: 0, x: -10 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: i * 0.06 }}
-            className={`card-soft rounded-xl p-4 flex items-center gap-4 ${
-              isCurrent ? "glow-primary border-primary/30" : ""
-            } ${!isUnlocked ? "opacity-40" : ""}`}
+            className={`card-soft rounded-xl p-4 flex items-center gap-4 ${isCurrent ? "glow-primary border-primary/30" : ""
+              } ${!isUnlocked ? "opacity-40" : ""}`}
           >
-            <span className="text-3xl">{rank.icon}</span>
+            <div className="w-16 h-16 flex-shrink-0">
+              <img src={rank.image} alt={rank.name} className="w-full h-full object-contain" />
+            </div>
             <div className="flex-1">
               <p className={`font-bold ${isCurrent ? "text-gradient-gold" : "text-foreground"}`}>
                 {rank.name}
