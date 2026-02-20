@@ -11,8 +11,7 @@ const queryClient = new QueryClient();
 
 // Protected Route Component
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const { session, loading } = useAuth();
-  const location = useLocation();
+  const { loading } = useAuth();
 
   if (loading) {
     return (
@@ -22,23 +21,10 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     );
   }
 
-  if (!session && !loading) {
-    // Optional: Render a "Starting up..." state if session is null but loading finished (rare with auto-login)
-    // But for now, we just let it pass or show nothing.
-    // Actually, if auto-login fails, we might be stuck. 
-    // Let's just render children, as useBulkingStore handles missing user by loading or doing nothing.
-    // But to be safe, we can just show loader until we are sure.
-    // With autoLogin, session becomes available eventually.
-    return (
-      <div className="h-screen w-full flex items-center justify-center bg-background">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
-        <span className="ml-2 text-muted-foreground">Menyiapkan data...</span>
-      </div>
-    );
-  }
-
+  // Always render children when not loading - let the app handle auth state
   return <>{children}</>;
 };
+
 
 const App = () => (
   <QueryClientProvider client={queryClient}>

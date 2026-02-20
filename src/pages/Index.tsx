@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Utensils } from "lucide-react";
+import { Utensils, AlertCircle } from "lucide-react";
 import { useBulkingStore } from "@/hooks/useBulkingStore";
 import RankBadge from "@/components/RankBadge";
 import StatsBar from "@/components/StatsBar";
@@ -11,6 +11,7 @@ import ProfileView from "@/components/ProfileView";
 import SettingsView from "@/components/SettingsView";
 
 const Index = () => {
+
   const [activePage, setActivePage] = useState<"home" | "ranks" | "profile" | "settings">("home");
 
   const {

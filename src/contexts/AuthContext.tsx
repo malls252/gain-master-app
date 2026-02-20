@@ -47,10 +47,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             });
 
             if (!signInError && signInData.session) {
+                console.log("Auto-login success");
                 return; // Success, listener will handle state
             }
 
             // 2. If sign in fails (likely user doesn't exist), sign up
+            console.log("Sign in failed, trying sign up...");
             const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
                 email,
                 password,
@@ -62,39 +64,58 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             });
 
             if (signUpError) {
-                console.error("Auto-login error:", signUpError);
+                console.error("Auto-signup error:", signUpError);
+            } else {
+                console.log("Auto-signup success");
             }
         } catch (error) {
             console.error("Auto-auth exception:", error);
         }
     };
 
+
     useEffect(() => {
+        let mounted = true;
+
         // Check session
         supabase.auth.getSession().then(({ data: { session } }) => {
+            if (!mounted) return;
+            
             setSession(session);
             setUser(session?.user ?? null);
+            
             if (!session) {
+                console.log("No session, attempting auto-login...");
                 autoLogin().finally(() => {
-                    setLoading(false);
+                    if (mounted) setLoading(false);
                 });
             } else {
+                console.log("Session found");
                 setLoading(false);
             }
+        }).catch((error) => {
+            console.error("Get session error:", error);
+            if (mounted) setLoading(false);
         });
 
         // Listen
         const {
             data: { subscription },
         } = supabase.auth.onAuthStateChange((_event, session) => {
+            if (!mounted) return;
+            
             setSession(session);
             setUser(session?.user ?? null);
             // Always stop loading when auth state changes
             setLoading(false);
         });
 
-        return () => subscription.unsubscribe();
+        return () => {
+            mounted = false;
+            subscription.unsubscribe();
+        };
     }, []);
+
 
 
     const signOut = async () => {

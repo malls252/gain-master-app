@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/contexts/AuthContext";
@@ -40,6 +39,7 @@ export function useBulkingStore() {
   // Fetch data from Supabase
   useEffect(() => {
     if (!session?.user) {
+      console.log("No user session, skipping data fetch");
       setLoading(false);
       return;
     }
@@ -86,6 +86,8 @@ export function useBulkingStore() {
 
       } catch (error) {
         console.error("Error fetching data:", error);
+        // Don't get stuck in loading state on error
+        setLoading(false);
       } finally {
         setLoading(false);
       }
@@ -203,36 +205,14 @@ export function useBulkingStore() {
     // Optimistic
     setState(prev => ({ ...prev, customTasks: prev.customTasks.filter(t => t.id !== taskId) }));
 
-    // DB - Assuming taskId is the UUID from DB. 
-    // Wait, `createCustomTask` generates a random string ID. 
-    // If I fetch from DB, I get UUIDs. 
-    // If I just created it optimistically, it has a temp ID?
-    // This is a common issue. Ideally we wait for DB response. 
-    // For now, let's assume we handle deletion by finding the Task roughly or just standard ID usage.
-    // If we use UUIDs from DB, we are good.
-    // When fetching, we map DB ID to task.id.
-
-    // Problem: `createCustomTask` uses: `custom-${Date.now()}`.
-    // Supabase uses UUID.
-    // Fix: When adding task, I should use the returned data from Supabase to replace the optimistic task, or just reload.
-    // For this simple implementation, let's just delete by ID if it looks like a UUID, or handle error.
-
-    // Actually, `createCustomTask` logic in `programs.ts` generates ID.
-    // I should probably rely on `fetchData` to get real IDs. 
-    // But for `removeTask`, I need the ID.
-    // If I reload the page, I get real IDs. If I verify functionality without reload, I might have issues with new items.
-    // Let's implement optimistic update carefully or just wait for DB?
-    // Let's just do: 
-    await supabase.from("custom_tasks").delete().eq("id", taskId); // This works if taskId is UUID
-    // If taskId is "custom-...", it won't delete anything in DB (which is fine, it's not there yet?)
-    // Actually, `insert` writes to DB. `fetch` reads UUIDs.
-    // If I add task effectively, I should refetch or update state with DB ID.
+    // DB
+    await supabase.from("custom_tasks").delete().eq("id", taskId);
   };
 
   const addMealPlan = async (name: string, foods: FoodItem[]) => {
     if (!session?.user) return null;
     const userId = session.user.id;
-    const newPlan = createMealPlan(name, foods); // contains 'meal-...' ID
+    const newPlan = createMealPlan(name, foods);
 
     // Optimistic
     setState(prev => ({ ...prev, mealPlans: [...prev.mealPlans, newPlan] }));
@@ -258,8 +238,6 @@ export function useBulkingStore() {
     await supabase.from("meal_plans").delete().eq("id", planId);
   };
 
-  // Implement other actions (addCustomFood, etc.) similarly... 
-  // For brevity, skipping addCustomFood full impl details but stubbing it to works
   const addCustomFood = async (name: string, description: string, icon?: string, calories?: number, protein?: number, carbs?: number, fat?: number, portion?: string, timing?: string) => {
     if (!session?.user) return;
     const newFood = createCustomFood(name, description, icon, calories, protein, carbs, fat, portion, timing);
@@ -275,8 +253,6 @@ export function useBulkingStore() {
     await supabase.from("custom_foods").delete().eq("id", foodId);
   };
 
-  // Meal plan food manipulation (complex because we store foods as JSONB in meal_plan table)
-  // We need to update the specific row.
   const addFoodToPlan = async (planId: string, food: FoodItem) => {
     const plan = state.mealPlans.find(p => p.id === planId);
     if (!plan || !session?.user) return;
@@ -314,8 +290,6 @@ export function useBulkingStore() {
     }).eq("id", planId);
   };
 
-  // Get completion history for a specific date (Stub for now, or fetch on demand?)
-  // For now return empty or current.
   const getCompletedForDate = (date: string) => {
     if (date === today) return state.completedToday;
     return state.completedDates[date] || [];
@@ -340,7 +314,7 @@ export function useBulkingStore() {
     removeFoodFromPlan,
     getCompletedForDate,
     dailyProgress,
-    isNewDay: false, // Managed by backend fetch logic
+    isNewDay: false,
     completeDay,
     isDayCompleted: !!state.dayCompleted?.[today],
     loading
