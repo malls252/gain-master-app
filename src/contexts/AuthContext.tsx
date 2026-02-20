@@ -75,7 +75,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             setSession(session);
             setUser(session?.user ?? null);
             if (!session) {
-                autoLogin();
+                autoLogin().finally(() => {
+                    setLoading(false);
+                });
             } else {
                 setLoading(false);
             }
@@ -87,14 +89,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         } = supabase.auth.onAuthStateChange((_event, session) => {
             setSession(session);
             setUser(session?.user ?? null);
-            // Only stop loading if we have a session (or if we decide to stop waiting)
-            if (session) {
-                setLoading(false);
-            }
+            // Always stop loading when auth state changes
+            setLoading(false);
         });
 
         return () => subscription.unsubscribe();
     }, []);
+
 
     const signOut = async () => {
         await supabase.auth.signOut();
